@@ -75,12 +75,57 @@ func (c *Chip8) prefixEight() {
 		fmt.Println("Add the value of VY to VX set VF to 1 if a carry occur or set VF to 0 if a carry does not occur")
 	case 0x0005:
 		fmt.Println("Subtract the value of VY from VX set VF to 0 if a borrow occur or set VF to 1 if a borrow does not occur")
+	case 0x0006:
+		fmt.Println("Store the value of VY shifted by one bit to VX set VF to the least significant bit prior to shift, VY in unchanged")
+	case 0x0007:
+		fmt.Println("Set VX to VY - VX, VF to 0 if a borrow occurs, to 1 if doesn't")
+	case 0x000E:
+		fmt.Println("Store the value of VY shifted by one bit to VX set VF to the most significant bit prior to shift, VY in unchanged")
+	default:
+		fmt.Println("unrecognized instruction")
+	}
+}
+
+func (c *Chip8) prefixE() {
+	switch c.OpCode & 0x000F {
+	case 0x000E:
+		fmt.Println("Skip the following instruction if the key corresponding to the hex value currently stored in register VX is pressed")
+	case 0x0001:
+		fmt.Println("Skip the following instruction if the key corresponding to the hex value currently stored in register VX is not pressed")
+	default:
+		fmt.Println("unrecognized instruction")
+	}
+}
+
+func (c *Chip8) prefixF() {
+	switch c.OpCode & 0x00FF {
+	case 0x0007:
+		fmt.Println("Store the current value of the delay timer in register VX")
+	case 0x000A:
+		fmt.Println("Wait for a keypress and store the result in register VX")
+	case 0x0015:
+		fmt.Println("Set the delay timer to the value of register VX")
+	case 0x0018:
+		fmt.Println("Set the sound timer to the value of register VX")
+	case 0x001E:
+		fmt.Println("Add the value stored in register VX to register I")
+	case 0x0029:
+		fmt.Println("Set I to the memory address of the sprite data corresponding to the hexadecimal digit stored in register VX")
+	case 0x0033:
+		fmt.Println("Store the binary-coded decimal equivalent of the value stored in register VX at addresses I, I + 1, and I + 2")
+	case 0x0055:
+		fmt.Println("Store the values of registers V0 to VX inclusive in memory starting at address I, I is set to I + X + 1 after operation")
+	case 0x0065:
+		fmt.Println("Fill registers V0 to VX inclusive with the values stored in memory starting at address I, I is set to I + X + 1 after operation")
+	default:
+		fmt.Println("unrecognized instruction")
 	}
 }
 
 func (c *Chip8) EmulateCycle() {
 	// Fetch Opcode
 	c.OpCode = uint16(c.Memory[c.ProgramCounter])<<8 | uint16(c.Memory[c.ProgramCounter+1])
+	c.ProgramCounter += 2
 	// Decode Opcode
 	switch c.OpCode & 0xF000 {
 	case 0x0000:
@@ -101,8 +146,22 @@ func (c *Chip8) EmulateCycle() {
 		fmt.Println("Add value 0x00NN to register V[0x0X00]")
 	case 0x8000:
 		c.prefixEight()
+	case 0x9000:
+		fmt.Println("Skip the following instruction if the value of register VX is not equal to the value of register VY")
+	case 0xA000:
+		fmt.Println("Store memory address NNN in register I")
+	case 0xB000:
+		fmt.Println("Jump to address NNN + V0")
+	case 0xC000:
+		fmt.Println("Set VX to a random number with a mask of NN")
+	case 0xD000:
+		fmt.Println("Draw a sprite at position VX, VY with N bytes of sprite data starting at the address stored in I\nSet VF to 01 if any set pixels are changed to unset, and 00 otherwise")
+	case 0xE000:
+		c.prefixE()
+	case 0xF000:
+		c.prefixF()
 	default:
-		fmt.Println("Unknown instruction")
+		fmt.Println("unrecognized instruction")
 	}
 	// Execute Opcode
 
