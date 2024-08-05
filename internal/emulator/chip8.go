@@ -57,7 +57,7 @@ func (c *Chip8) prefixZero() {
 	case 0x00EE:
 		fmt.Println("Return from a subroutine")
 	default:
-		fmt.Println("Execute machine language subroutine")
+		fmt.Println("No need to implement this")
 	}
 }
 
@@ -131,9 +131,14 @@ func (c *Chip8) EmulateCycle() {
 	case 0x0000:
 		c.prefixZero()
 	case 0x1000:
+		// GOTO
 		fmt.Println("Jump to address 0x0NNN")
+		c.ProgramCounter = c.OpCode & 0x0FFF
 	case 0x2000:
 		fmt.Println("Execute subroutine at address 0x0NNN")
+		c.Stack[c.StackPointer] = c.ProgramCounter
+		c.StackPointer++
+		c.ProgramCounter = c.OpCode & 0x0FFF
 	case 0x3000:
 		fmt.Println("Skip the following instruction if the value of register V[0x0X00] equal to 0x00NN")
 	case 0x4000:

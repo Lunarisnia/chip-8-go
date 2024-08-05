@@ -6,7 +6,7 @@ import (
 
 func main() {
 	chip8 := emulator.NewChip8()
-	err := chip8.LoadROM("./roms/br8kout.ch8")
+	err := chip8.LoadROM("./roms/test_opcode.ch8")
 	if err != nil {
 		panic(err)
 	}
